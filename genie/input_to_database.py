@@ -130,9 +130,11 @@ def check_existing_file_status(validation_statusdf, error_trackerdf, entities):
 
     for ent in entities:
         to_validate = False
+        version_number = str(ent.properties.versionNumber)
+
         # Get the current status and errors from the tables.
-        current_status = validation_statusdf[validation_statusdf['id'] == ent.id]
-        current_error = error_trackerdf[error_trackerdf['id'] == ent.id]
+        current_status = validation_statusdf[(validation_statusdf['id'] == ent.id) & (validation_statusdf['versionNumber'] == version_number)]
+        current_error = error_trackerdf[(error_trackerdf['id'] == ent.id) & (error_trackerdf['versionNumber'] == version_number)]
 
         if current_status.empty:
             to_validate = True
@@ -207,17 +209,18 @@ def _get_status_and_error_list(syn, valid, message, filetype, entities):
     if valid:
         input_status_list = [
             [ent.id, ent.path, ent.md5, "VALIDATED",
-             ent.name, entity_date_to_timestamp(ent.properties.modifiedOn), filetype]
-            for ent in
-            entities]
+             ent.name, entity_date_to_timestamp(ent.properties.modifiedOn), filetype,
+             str(ent.properties.versionNumber)]
+            for ent in entities]
         invalid_errors_list = None
     else:
         input_status_list = [
             [ent.id, ent.path, ent.md5, "INVALID",
-             ent.name, entity_date_to_timestamp(ent.properties.modifiedOn), filetype]
+             ent.name, entity_date_to_timestamp(ent.properties.modifiedOn), filetype, 
+             str(ent.properties.versionNumber)]
             for ent in entities]
         invalid_errors_list = [
-            [ent.id, message, ent.name]
+            [ent.id, message, ent.name, str(ent.properties.versionNumber)]
             for ent in entities]
     return(input_status_list, invalid_errors_list)
 
@@ -277,11 +280,11 @@ def validatefile(syn, entities, validation_statusdf, error_trackerdf,
             _send_validation_error_email(syn, filenames, message, file_users)
     else:
         input_status_list = [
-            [ent.id, path, ent.md5, status, filename, entity_date_to_timestamp(ent.properties.modifiedOn), filetype]
+            [ent.id, path, ent.md5, status, filename, entity_date_to_timestamp(ent.properties.modifiedOn), filetype, str(ent.properties.versionNumber)]
             for ent, path, status, filename in
             zip(entities, filepaths, status_list, filenames)]
         invalid_errors_list = [
-            [entity.id, error, filename]
+            [entity.id, error, filename, str(ent.properties.versionNumber)]
             for entity, error, filename in
             zip(entities, error_list, filenames)]
     return(input_status_list, invalid_errors_list)
@@ -603,19 +606,23 @@ def validation(syn, center, process,
         add_query_str = "and name not like '%.vcf'" if process != "vcf" else ''
 
         validation_status_table = syn.tableQuery(
-            "SELECT id,md5,status,name,center,modifiedOn FROM {synid} "
+            "SELECT id,md5,status,name,center,modifiedOn,versionNumber FROM {synid} "
             "where center = '{center}' {add}".format(
                 synid=validation_status_synid,
                 center=center,
                 add=add_query_str))
         validation_statusdf = validation_status_table.asDataFrame()
+        validation_statusdf['versionNumber'] = validationStatusDf.versionNumber.astype(str)
+
         error_tracker_table = syn.tableQuery(
-            "SELECT id,center,errors,name FROM {synid} "
+            "SELECT id,center,errors,name,versionNumber FROM {synid} "
             "where center = '{center}' {add}".format(
                 synid=error_tracker_synid,
                 center=center,
                 add=add_query_str))
         error_trackerdf = error_tracker_table.asDataFrame()
+        error_trackerdf['versionNumber'] = validationStatusDf.versionNumber.astype(str)
+
 
         input_valid_statuses = []
         invalid_errors = []
