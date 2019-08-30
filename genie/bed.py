@@ -1,6 +1,7 @@
 import os
 import logging
 import subprocess
+import tempfile
 
 import pandas as pd
 
@@ -324,7 +325,7 @@ class bed(FileTypeFormat):
     '''
     _fileType = "bed"
 
-    _process_kwargs = ["newPath", "parentId", "databaseSynId", 'seq_assay_id']
+    _process_kwargs = ["parentId", "databaseSynId", 'seq_assay_id']
 
     def _get_dataframe(self, filePathList):
         '''
@@ -450,14 +451,13 @@ class bed(FileTypeFormat):
         return(bed, temp_bed_path)
 
     def _process(
-            self, gene, seq_assay_id, newPath, parentId, createPanel=True):
+            self, gene, seq_assay_id, parentId, createPanel=True):
         '''
         Process bed file, add feature type
 
         Args:
             gene: bed dataframe
             seq_assay_id: GENIE SEQ_ASSAY_ID
-            newPath: new GENIE path
             parentId: Synapse id to store the gene panel
             createPanel: Create gene panel
 
@@ -476,12 +476,15 @@ class bed(FileTypeFormat):
         else:
             gene[5] = pd.np.nan
         bed = gene[[0, 1, 2, 3, 4, 5]]
-        genePanelPath = os.path.dirname(newPath)
+
         # Must be .astype(bool) because `1, 0 in [True, False]`
         bed[4] = bed[4].astype(bool)
 
         exon_gtf_path, gene_gtf_path = \
             create_gtf(process_functions.SCRIPT_DIR)
+
+        tmpdir = tempfile.TemporaryDirectory()
+        genePanelPath = tmpdir.name
 
         bed, temp_bed_path = self.createdBEDandGenePanel(
             bed, seq_assay_id, genePanelPath, parentId, exon_gtf_path,
@@ -509,13 +512,12 @@ class bed(FileTypeFormat):
         return({'seq_assay_id': seq_assay_id})
 
     def process_steps(
-            self, gene, newPath, parentId, databaseSynId, seq_assay_id):
+            self, gene, parentId, databaseSynId, seq_assay_id):
         '''
         Process bed file, update bed database, write bed file to path
 
         Args:
             gene: Bed dataframe
-            newPath: Path to new bed file
             parentId: Synapse id to store gene panel file
             databaseSynId: Synapse id of bed database
             seq_assay_id: GENIE seq assay id
@@ -523,12 +525,10 @@ class bed(FileTypeFormat):
         Returns:
             string: Path to new bed file
         '''
-        bed = self._process(gene, seq_assay_id, newPath, parentId)
+        bed = self._process(gene, seq_assay_id, parentId)
         process_functions.updateData(
             self.syn, databaseSynId, bed, seq_assay_id,
             filterByColumn="SEQ_ASSAY_ID", toDelete=True)
-        bed.to_csv(newPath, sep="\t", index=False)
-        return(newPath)
 
     def _validate(self, bed):
         '''
