@@ -152,8 +152,9 @@ def check_existing_file_status(validation_statusdf, error_trackerdf, entities):
                current_status['name'].values[0] != ent.name:
                 to_validate = True
             else:
-                status_str = "{filename} ({id}) FILE STATUS IS: {filestatus}"
+                status_str = "{filename} ({id}.{version}) FILE STATUS IS: {filestatus}"
                 logger.info(status_str.format(filename=ent.name, id=ent.id,
+                                              version=ent.properties.versionNumber,
                                               filestatus=current_status['status'].values[0]))
 
     return({
