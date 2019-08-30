@@ -153,7 +153,7 @@ def check_existing_file_status(validation_statusdf, error_trackerdf, entities):
                 to_validate = True
             else:
                 status_str = "{filename} ({id}.{version}) FILE STATUS IS: {filestatus}"
-                logger.info(status_str.format(filename=ent.name, id=ent.id,
+                logger.info(status_str.format(filename=ent.name, id=ent.id, 
                                               version=ent.properties.versionNumber,
                                               filestatus=current_status['status'].values[0]))
 
@@ -613,7 +613,8 @@ def validation(syn, center, process,
                 center=center,
                 add=add_query_str))
         validation_statusdf = validation_status_table.asDataFrame()
-        validation_statusdf['versionNumber'] = validationStatusDf.versionNumber.astype(str)
+        print(validation_statusdf)
+        validation_statusdf['versionNumber'] = validation_statusdf.versionNumber.astype(str)
 
         error_tracker_table = syn.tableQuery(
             "SELECT id,center,errors,name,versionNumber FROM {synid} "
@@ -622,7 +623,7 @@ def validation(syn, center, process,
                 center=center,
                 add=add_query_str))
         error_trackerdf = error_tracker_table.asDataFrame()
-        error_trackerdf['versionNumber'] = validationStatusDf.versionNumber.astype(str)
+        error_trackerdf['versionNumber'] = error_trackerdf.versionNumber.astype(str)
 
 
         input_valid_statuses = []
