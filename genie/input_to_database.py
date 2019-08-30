@@ -285,7 +285,7 @@ def validatefile(syn, entities, validation_statusdf, error_trackerdf,
             for ent, path, status, filename in
             zip(entities, filepaths, status_list, filenames)]
         invalid_errors_list = [
-            [entity.id, error, filename, str(ent.properties.versionNumber)]
+            [entity.id, error, filename, str(entity.properties.versionNumber)]
             for entity, error, filename in
             zip(entities, error_list, filenames)]
     return(input_status_list, invalid_errors_list)
