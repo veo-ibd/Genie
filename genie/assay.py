@@ -22,7 +22,7 @@ class Assayinfo(FileTypeFormat):
     def _validateFilename(self, filepath_list):
         assert os.path.basename(filepath_list[0]) == "assay_information.yaml"
 
-    def process_steps(self, assay_info_df, newPath, databaseSynId):
+    def process_steps(self, assay_info_df, databaseSynId):
         # databaseSynId = kwargs['databaseSynId']
         # Must pass in a list
         process_assay_info_df = self._process(assay_info_df)
@@ -38,8 +38,6 @@ class Assayinfo(FileTypeFormat):
             col=col,
             filterByColumn="CENTER",
             toDelete=True)
-        process_assay_info_df.to_csv(newPath, sep="\t", index=False)
-        return(newPath)
 
     def _process(self, df):
         '''
