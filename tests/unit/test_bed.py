@@ -36,7 +36,6 @@ syn = mock.create_autospec(synapseclient.Synapse)
 syn.tableQuery.side_effect = table_query_results
 
 seq_assay_id = "SAGE-Test"
-new_path = "new.bed"
 parentid = "synTest"
 bed_class = bed(syn, "SAGE")
 bedsp_class = bedSP(syn, "SAGE")
@@ -68,7 +67,7 @@ def test_perfect___process():
         5: [True, True, False, 0, 1]})
 
     new_beddf = bed_class._process(
-        beddf, seq_assay_id, new_path, parentid, createPanel=False)
+        beddf, seq_assay_id, parentid, createPanel=False)
     new_beddf.sort_values("ID", inplace=True)
     new_beddf.reset_index(drop=True, inplace=True)
     assert expected_beddf.equals(new_beddf[expected_beddf.columns])
@@ -100,7 +99,7 @@ def test_includeinpanel___process():
         4: [True, True, 0, 1]})
 
     new_beddf = bedsp_class._process(
-        beddf, seq_assay_id, new_path, parentid, createPanel=False)
+        beddf, seq_assay_id, parentid, createPanel=False)
     new_beddf.sort_values("Chromosome", inplace=True)
     new_beddf.reset_index(drop=True, inplace=True)
     assert expected_beddf.equals(new_beddf[expected_beddf.columns])
@@ -133,7 +132,7 @@ def test_clinicalreport___process():
         5: [True, float('nan'), False, True]})
 
     new_beddf = bedsp_class._process(
-        beddf, seq_assay_id, new_path, parentid, createPanel=False)
+        beddf, seq_assay_id, parentid, createPanel=False)
     new_beddf.sort_values("Chromosome", inplace=True)
     new_beddf.reset_index(drop=True, inplace=True)
     assert expected_beddf.equals(new_beddf[expected_beddf.columns])
