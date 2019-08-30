@@ -25,12 +25,10 @@ class clinicalSP(FileTypeFormat):
             for sample in clinicalSPDf['PATIENT_ID']]
         return(clinicalSPDf)
 
-    def process_steps(self, clinicalSPDf, newPath, databaseSynId):
+    def process_steps(self, clinicalSPDf, databaseSynId):
         clinicalSPDf = self._process(clinicalSPDf)
         process_functions.updateData(
             self.syn, databaseSynId, clinicalSPDf, self.center)
-        clinicalSPDf.to_csv(newPath, sep="\t", index=False)
-        return(newPath)
 
     def _validate(self, clinicalDF):
         clinicalDF.columns = [col.upper() for col in clinicalDF.columns]

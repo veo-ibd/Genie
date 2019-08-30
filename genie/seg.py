@@ -13,7 +13,7 @@ class seg(FileTypeFormat):
 
     _fileType = "seg"
 
-    _process_kwargs = ["newPath", "databaseSynId"]
+    _process_kwargs = ["databaseSynId"]
 
     def _validateFilename(self, filePath):
         assert os.path.basename(filePath[0]) == "genie_data_cna_hg19_%s.%s" % (self.center, self._fileType)
@@ -34,8 +34,6 @@ class seg(FileTypeFormat):
     def process_steps(self, seg, newPath, databaseSynId):
         seg = self._process(seg)
         process_functions.updateData(self.syn, databaseSynId, seg, self.center, toDelete=True)
-        seg.to_csv(newPath,sep="\t",index=False)
-        return(newPath)
 
     def _validate(self, segDF):
         total_error = ""

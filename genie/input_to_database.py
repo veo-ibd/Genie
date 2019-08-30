@@ -327,7 +327,6 @@ def processfiles(syn, validfiles, center, path_to_genie, threads,
                                                  validfiles['path'],
                                                  validfiles['fileType']):
             filename = os.path.basename(filePath)
-            newPath = os.path.join(center_staging_folder, filename)
             # store = True
             synId = databaseToSynIdMappingDf.Id[
                 databaseToSynIdMappingDf['Database'] == fileType]
@@ -338,7 +337,7 @@ def processfiles(syn, validfiles, center, path_to_genie, threads,
             if fileType is not None and (processing == "main" or processing == fileType):
                 processor = PROCESS_FILES[fileType](syn, center, threads)
                 processor.process(
-                    filePath=filePath, newPath=newPath,
+                    filePath=filePath,
                     parentId=center_staging_synid, databaseSynId=synId,
                     oncotreeLink=oncotreeLink,
                     fileSynId=fileSynId, validVCF=validVCF,
@@ -350,14 +349,13 @@ def processfiles(syn, validfiles, center, path_to_genie, threads,
 
     else:
         filePath = None
-        newPath = None
         fileType = None
         synId = databaseToSynIdMappingDf.Id[
             databaseToSynIdMappingDf['Database'] == processing][0]
         fileSynId = None
         processor = PROCESS_FILES[processing](syn, center, threads)
         processor.process(
-            filePath=filePath, newPath=newPath,
+            filePath=filePath,
             parentId=center_staging_synid, databaseSynId=synId,
             oncotreeLink=oncotreeLink,
             fileSynId=fileSynId, validVCF=validVCF,

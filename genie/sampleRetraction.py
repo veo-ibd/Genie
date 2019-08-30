@@ -15,7 +15,7 @@ class sampleRetraction(FileTypeFormat):
 
     _fileType = "sampleRetraction"
 
-    _process_kwargs = ["newPath", "databaseSynId","fileSynId"]
+    _process_kwargs = ["databaseSynId","fileSynId"]
 
     def _get_dataframe(self, filePathList):
         '''
@@ -39,8 +39,7 @@ class sampleRetraction(FileTypeFormat):
         deleteSamplesDf['center'] = self.center
         return(deleteSamplesDf)
 
-    def process_steps(self, deleteSamples, fileSynId, databaseSynId, newPath):
+    def process_steps(self, deleteSamples, fileSynId, databaseSynId):
         info = self.syn.get(fileSynId, downloadFile=False)
         deleteSamples = self._process(deleteSamples, info.modifiedOn.split(".")[0])
         process_functions.updateData(self.syn, databaseSynId, deleteSamples, self.center, filterByColumn="center", toDelete=True)
-        return(newPath)

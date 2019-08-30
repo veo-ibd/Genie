@@ -50,7 +50,7 @@ class fusions(FileTypeFormat):
    
     _fileType = "fusions"
 
-    _process_kwargs = ["newPath", "databaseSynId",'test']
+    _process_kwargs = [databaseSynId",'test']
 
     _validation_kwargs = ['testing','noSymbolCheck']
 
@@ -92,11 +92,9 @@ class fusions(FileTypeFormat):
         return(fusion)
 
     #PROCESSING
-    def process_steps(self, fusion, databaseSynId, newPath, test):
+    def process_steps(self, fusion, databaseSynId, test):
         fusion = self._process(fusion, test)
         process_functions.updateData(self.syn, databaseSynId, fusion, self.center, toDelete=True)
-        fusion.to_csv(newPath, sep="\t",index=False)
-        return(newPath)
 
     def _validate(self, fusionDF, noSymbolCheck, testing=False):
         total_error = ""

@@ -123,9 +123,7 @@ class vitalStatus(FileTypeFormat):
         return(vitalStatusDf)
 
     # PROCESS
-    def process_steps(self, vitalStatusDf, databaseSynId, newPath):
+    def process_steps(self, vitalStatusDf, databaseSynId):
         vitalStatusDf = self._process(vitalStatusDf)
         process_functions.updateData(
             self.syn, databaseSynId, vitalStatusDf, self.center)
-        vitalStatusDf.to_csv(newPath, sep="\t", index=False)
-        return(newPath)

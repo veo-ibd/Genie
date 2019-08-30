@@ -34,10 +34,8 @@ class mutationsInCis(FileTypeFormat):
         assert os.path.basename(filePath[0]) == "mutationsInCis_filtered_samples.csv"
     
     # PROCESS
-    def process_steps(self, mutationInCis, newPath, databaseSynId):
+    def process_steps(self, mutationInCis, databaseSynId):
         process_functions.updateData(self.syn, databaseSynId, mutationInCis, self.center, filterByColumn="Center")
-        mutationInCis.to_csv(newPath, sep="\t",index=False)
-        return(newPath)
 
     def _validate(self, mutationInCisDf, testing=False):
         mutationInCisSynId = process_functions.getDatabaseSynId(self.syn, "mutationsInCis", test=testing)

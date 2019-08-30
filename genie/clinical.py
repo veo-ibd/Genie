@@ -39,7 +39,7 @@ class clinical(FileTypeFormat):
     #     "newPath", "patientSynId", "sampleSynId",
     #     "parentId", "retractedSampleSynId", "retractedPatientSynId"]
     _process_kwargs = [
-        "newPath", "parentId", "databaseToSynIdMappingDf", "oncotreeLink",
+        "parentId", "databaseToSynIdMappingDf", "oncotreeLink",
         'clinicalTemplate', 'sample', 'patient', 'patientCols', 'sampleCols']
 
     _validation_kwargs = ["oncotreeLink"]
@@ -238,7 +238,7 @@ class clinical(FileTypeFormat):
                 'sampleCols': sampleCols})
 
     def process_steps(self, clinicalDf,
-                      databaseToSynIdMappingDf, newPath,
+                      databaseToSynIdMappingDf,
                       parentId, oncotreeLink, clinicalTemplate,
                       sample, patient, patientCols, sampleCols):
         patientSynId = databaseToSynIdMappingDf.Id[
@@ -283,9 +283,6 @@ class clinical(FileTypeFormat):
             process_functions.updateData(
                 self.syn, sampleSynId, sampleClinical,
                 self.center, col=sampleCols, toDelete=True)
-
-        newClinicalDf.to_csv(newPath, sep="\t", index=False)
-        return(newPath)
 
     # VALIDATION
     def _validate(self, clinicalDF, oncotreeLink):

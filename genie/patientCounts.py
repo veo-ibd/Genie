@@ -15,7 +15,7 @@ class patientCounts(FileTypeFormat):
     '''
     _fileType = "patientCounts"
 
-    _process_kwargs = ["newPath", "oncotreeLink", "databaseSynId"]
+    _process_kwargs = ["oncotreeLink", "databaseSynId"]
 
     _validation_kwargs = ["oncotreeLink"]
 
@@ -33,12 +33,10 @@ class patientCounts(FileTypeFormat):
         return(patientCountsDf)
 
     def process_steps(
-            self, patientCountsDf, newPath, oncotreeLink, databaseSynId):
+            self, patientCountsDf, oncotreeLink, databaseSynId):
         patientCountsDf = self._process(patientCountsDf, oncotreeLink)
         process_functions.updateData(
             self.syn, databaseSynId, patientCountsDf, self.center)
-        patientCountsDf.to_csv(newPath, sep="\t", index=False)
-        return(newPath)
 
     def _validate(self, patCountsDf, oncotreeLink):
         total_error = ""
