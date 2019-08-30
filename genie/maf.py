@@ -21,12 +21,12 @@ class maf(FileTypeFormat):
         "processing", "path_to_GENIE", 'databaseToSynIdMappingDf',
         "vcf2mafPath", "veppath", "vepdata", 'reference']
 
-    def _validateFilename(self, filePath):
+    def _validateFilename(self):
         '''
         Validates filename.  Should be
         data_mutations_extended_CENTER.txt
         '''
-        assert os.path.basename(filePath[0]) == \
+        assert os.path.basename(self.file_path_list[0]) == \
             "data_mutations_extended_{}.txt".format(self.center)
 
     def formatMAF(self, mafDf):
@@ -113,11 +113,12 @@ class maf(FileTypeFormat):
         return(filePath)
 
     def process_steps(
-            self, filePath, path_to_GENIE, databaseToSynIdMappingDf,
+            self, path_to_GENIE, databaseToSynIdMappingDf,
             vcf2mafPath, veppath, vepdata, processing, reference=None):
         '''
         Processing maf files
         '''
+        filePath = self.file_path_list[0]
         if processing == self._fileType:
             mafProcessing = "mafSP" if self._fileType == "mafSP" else 'vcf2maf'
             mafSynId = databaseToSynIdMappingDf.Id[
@@ -295,12 +296,12 @@ class maf(FileTypeFormat):
 
         return(total_error, warning)
 
-    def _get_dataframe(self, filePathList):
+    def _get_dataframe(self):
         '''
         Get mutation dataframe
         '''
         mutationDF = pd.read_csv(
-            filePathList[0],
+            self.file_path_list[0],
             sep="\t",
             comment="#",
             na_values=[

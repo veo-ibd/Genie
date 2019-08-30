@@ -45,15 +45,15 @@ class clinical(FileTypeFormat):
     _validation_kwargs = ["oncotreeLink"]
 
     # VALIDATE FILE NAME
-    def _validateFilename(self, filePath):
+    def _validateFilename(self):
         if len(filePath) == 1:
-            assert os.path.basename(filePath[0]) == \
+            assert os.path.basename(self.file_path_list[0]) == \
                 "data_clinical_supp_{}.txt".format(self.center)
         else:
             required = pd.Series([
                 "data_clinical_supp_sample_{}.txt".format(self.center),
                 "data_clinical_supp_patient_{}.txt".format(self.center)])
-            assert all(required.isin([os.path.basename(i) for i in filePath]))
+            assert all(required.isin([os.path.basename(i) for i in self.file_path_list]))
 
     # PROCESSING
     # Update clinical file with the correct mappings
@@ -196,17 +196,15 @@ class clinical(FileTypeFormat):
 
         return(clinicalRemapped)
 
-    def preprocess(self, filepath):
+    def preprocess(self):
         '''
         Gather preprocess parameters
-
-        Args:
-            filePath: Path to file
 
         Returns:
             dict with keys - 'clinicalTemplate', 'sample', 'patient',
                              'patientCols', 'sampleCols'
         '''
+        filepath = self.file_path_list[0]
         # These synapse ids for the clinical tier release scope is
         # hardcoded because it never changes
         patientColsTable = self.syn.tableQuery(
@@ -692,11 +690,11 @@ class clinical(FileTypeFormat):
 
         return(total_error, warning)
 
-    def _get_dataframe(self, filePathList):
-        clinicalDf = pd.read_csv(filePathList[0], sep="\t", comment="#")
+    def _get_dataframe(self):
+        clinicalDf = pd.read_csv(self.file_path_list[0], sep="\t", comment="#")
         if len(filePathList) > 1:
             otherClinicalDf = pd.read_csv(
-                filePathList[1], sep="\t", comment="#")
+                self.file_path_list[1], sep="\t", comment="#")
             try:
                 clinicalDf = clinicalDf.merge(otherClinicalDf, on="PATIENT_ID")
             except Exception:
@@ -704,7 +702,7 @@ class clinical(FileTypeFormat):
                     "If submitting separate patient and sample files, "
                     "they both must have the PATIENT_ID column"))
             # Must figure out which is sample and which is patient
-            if "sample" in filePathList[0]:
+            if "sample" in self.file_path_list[0]:
                 sample = clinicalDf
                 patient = otherClinicalDf
             else:

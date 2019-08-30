@@ -16,12 +16,12 @@ class mafSP(maf):
 
     _fileType = "mafSP"
 
-    def _validateFilename(self, filePath):
+    def _validateFilename(self):
         '''
         Validates filename.  Should be
         nonGENIE_data_mutations_extended_CENTER.txt
         '''
-        assert os.path.basename(filePath[0]) == \
+        assert os.path.basename(self.file_path_list[0]) == \
             "nonGENIE_data_mutations_extended_{}.txt".format(self.center)
 
     def formatMAF(self, mafDf):

@@ -9,7 +9,7 @@ class bedSP(bed):
 
     _fileType = "bedSP"
 
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]).startswith(
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]).startswith(
             "nonGENIE_%s-" % self.center) and \
-               os.path.basename(filePath[0]).endswith(".bed")
+               os.path.basename(self.file_path_list[0]).endswith(".bed")

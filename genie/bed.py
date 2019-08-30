@@ -327,14 +327,14 @@ class bed(FileTypeFormat):
 
     _process_kwargs = ["parentId", "databaseSynId", 'seq_assay_id']
 
-    def _get_dataframe(self, filePathList):
+    def _get_dataframe(self):
         '''
         Bed files don't have a header
 
         Args:
             filePathList: List of files
         '''
-        filePath = filePathList[0]
+        filePath = self.filePathList[0]
         try:
             beddf = pd.read_csv(filePath, sep="\t", header=None)
         except Exception:
@@ -349,7 +349,7 @@ class bed(FileTypeFormat):
                 "contain a comment/header line")
         return(beddf)
 
-    def _validateFilename(self, filePath):
+    def _validateFilename(self):
         '''
         Validates filename
         CENTER-11.bed
@@ -358,8 +358,8 @@ class bed(FileTypeFormat):
             filePath: Path to bedfile
         '''
 
-        assert os.path.basename(filePath[0]).startswith("%s-" % self.center)\
-            and os.path.basename(filePath[0]).endswith(".bed")
+        assert os.path.basename(self.file_path_list[0]).startswith("%s-" % self.center)\
+            and os.path.basename(self.file_path_list[0]).endswith(".bed")
 
     def createdBEDandGenePanel(
             self, bed, seq_assay_id,
@@ -497,16 +497,14 @@ class bed(FileTypeFormat):
         bed['Chromosome'] = bed['Chromosome'].astype(str)
         return(bed)
 
-    def preprocess(self, filePath):
+    def preprocess(self):
         '''
         Standardize and grab seq assay id from the bed file path
-
-        Args:
-            filePath: bed file path
 
         Returns:
             dict: GENIE seq assay id
         '''
+        filePath = self.file_path_list[0]
         seq_assay_id = os.path.basename(filePath).replace(".bed", "")
         seq_assay_id = seq_assay_id.upper().replace("_", "-")
         return({'seq_assay_id': seq_assay_id})

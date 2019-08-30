@@ -19,8 +19,8 @@ class patientCounts(FileTypeFormat):
 
     _validation_kwargs = ["oncotreeLink"]
 
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]) == "patient_counts.txt"
+    def _validateFilename(self):
+        assert os.path.basenameself.file_path_list[0]) == "patient_counts.txt"
 
     def _process(self, patientCountsDf, oncotreeLink):
         patientCountsDf['CENTER'] = self.center

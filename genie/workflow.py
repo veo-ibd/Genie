@@ -14,10 +14,9 @@ class workflow(FileTypeFormat):
 
     _process_kwargs = ["databaseSynId"]
 
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]).startswith(self.center) and \
-               os.path.basename(filePath[0]).endswith(".md")
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]).startswith(self.center) and \
+               os.path.basename(self.file_path_list[0]).endswith(".md")
 
-    def process_steps(self, filePath, databaseSynId):
-        self.syn.store(synapseclient.File(filePath, parent=databaseSynId))
-        return(filePath)
+    def process_steps(self, databaseSynId):
+        self.syn.store(synapseclient.File(self.file_path_list[0], parent=databaseSynId))

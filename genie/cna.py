@@ -89,8 +89,8 @@ class cna(FileTypeFormat):
     _validation_kwargs = ['testing', 'noSymbolCheck']
 
     # VALIDATE FILENAME
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]) == \
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]) == \
             "data_CNA_{}.txt".format(self.center)
 
     def _process(self, cnaDf, test=False):

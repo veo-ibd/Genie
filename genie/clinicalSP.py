@@ -12,8 +12,8 @@ class clinicalSP(FileTypeFormat):
     _fileType = "clinicalSP"
 
     # VALIDATE FILENAME
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]) == "nonGENIE_data_clinical.txt"
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]) == "nonGENIE_data_clinical.txt"
 
     def _process(self, clinicalSPDf):
         clinicalSPDf['SAMPLE_ID'] = [

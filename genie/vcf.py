@@ -31,15 +31,15 @@ class vcf(maf):
         "validVCF", "processing", "path_to_GENIE", "databaseToSynIdMappingDf",
         "vcf2mafPath", "veppath", "vepdata", "reference"]
 
-    def _validateFilename(self, filePath):
-        basename = os.path.basename(filePath[0])
+    def _validateFilename(self):
+        basename = os.path.basename(self.file_path_list[0])
         startswith_genie = basename.startswith("GENIE-{}-".format(self.center))
         endswith_vcf = basename.endswith(".vcf")
         assert startswith_genie and endswith_vcf
 
-    def _get_dataframe(self, filePathList):
+    def _get_dataframe(self):
         headers = None
-        filepath = filePathList[0]
+        filepath = self.file_path_list[0]
         with open(filepath, "r") as vcffile:
             for row in vcffile:
                 if row.startswith("#CHROM"):
@@ -174,7 +174,7 @@ class vcf(maf):
 
         return(newMafPath)
 
-    def process_steps(self, filePath, processing, databaseToSynIdMappingDf,
+    def process_steps(self, processing, databaseToSynIdMappingDf,
                       vcf2mafPath, veppath, vepdata, validVCF, path_to_GENIE,
                       reference):
         mutationFiles = []

@@ -55,8 +55,8 @@ class fusions(FileTypeFormat):
     _validation_kwargs = ['testing','noSymbolCheck']
 
     #VALIDATE FILENAME
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]) == "data_fusions_%s.txt" % self.center
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]) == "data_fusions_%s.txt" % self.center
 
 
     def _process(self, fusion, test=False):

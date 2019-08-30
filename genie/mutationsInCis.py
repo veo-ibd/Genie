@@ -21,17 +21,17 @@ class mutationsInCis(FileTypeFormat):
 
     _validation_kwargs = ["testing"]
 
-    def _get_dataframe(self, filePathList):
+    def _get_dataframe(self):
         '''
         Mutation In Cis is a csv file
         '''
-        filePath = filePathList[0]
+        filePath = self.file_path_list[0]
         df = pd.read_csv(filePath,comment="#")
         return(df)
 
     # VALIDATE FILENAME
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]) == "mutationsInCis_filtered_samples.csv"
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]) == "mutationsInCis_filtered_samples.csv"
     
     # PROCESS
     def process_steps(self, mutationInCis, databaseSynId):

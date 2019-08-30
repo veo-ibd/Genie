@@ -14,12 +14,13 @@ class FileTypeFormat(object):
 
     _validation_kwargs = []
 
-    def __init__(self, syn, center, poolSize=1):
+    def __init__(self, syn, center, filePathList, poolSize=1):
         self.syn = syn
         self.center = center
+        self.file_path_list = filePathList
         # self.pool = multiprocessing.Pool(poolSize)
 
-    def _get_dataframe(self, filePathList):
+    def _get_dataframe(self):
         '''
         This function by defaults assumes the filePathList is length of 1
         and is a tsv file.  Could change depending on file type.
@@ -31,11 +32,11 @@ class FileTypeFormat(object):
         Returns:
             df: Pandas dataframe of file
         '''
-        filePath = filePathList[0]
+        filePath = self.file_path_list[0]
         df = pd.read_csv(filePath, sep="\t", comment="#")
         return(df)
 
-    def read_file(self, filePathList):
+    def read_file(self):
         '''
         Each file is to be read in for validation and processing.
         This is not to be changed in any functions.
@@ -47,10 +48,10 @@ class FileTypeFormat(object):
         Returns:
             df: Pandas dataframe of file
         '''
-        df = self._get_dataframe(filePathList)
+        df = self._get_dataframe(self.file_path_list)
         return(df)
 
-    def _validateFilename(self, filePath):
+    def _validateFilename(self):
         '''
         Function that changes per file type for validating its filename
         Expects an assertion error.
@@ -61,7 +62,7 @@ class FileTypeFormat(object):
         # assert True
         raise NotImplementedError
 
-    def validateFilename(self, filePath):
+    def validateFilename(self):
         '''
         Validation of file name.  The filename is what maps the file
         to its validation and processing.
@@ -72,7 +73,7 @@ class FileTypeFormat(object):
         Returns:
             str: file type defined by self._fileType
         '''
-        self._validateFilename(filePath)
+        self._validateFilename(self.file_path_list)
         return(self._fileType)
 
     def process_steps(self, df, **kwargs):
@@ -82,7 +83,7 @@ class FileTypeFormat(object):
         '''
         pass
 
-    def preprocess(self, filePath):
+    def preprocess(self):
         '''
         This is for any preprocessing that has to occur to the filepath name
         to add to kwargs for processing.
@@ -92,7 +93,7 @@ class FileTypeFormat(object):
         '''
         return(dict())
 
-    def process(self, filePath, **kwargs):
+    def process(self, **kwargs):
         '''
         This is the main processing function.
 
@@ -103,19 +104,19 @@ class FileTypeFormat(object):
         Returns:
             str: file path of processed file
         '''
-        preprocess_args = self.preprocess(filePath)
+        preprocess_args = self.preprocess(self.file_path_list)
         kwargs.update(preprocess_args)
         mykwargs = {}
         for required_parameter in self._process_kwargs:
             assert required_parameter in kwargs.keys(), \
                 "%s not in parameter list" % required_parameter
             mykwargs[required_parameter] = kwargs[required_parameter]
-        logger.info('PROCESSING %s' % filePath)
+        logger.info('PROCESSING %s' % self.file_path_list)
         # If file type is vcf or maf file, processing requires a filepath
         if self._fileType not in ['vcf', 'maf', 'mafSP', 'md']:
-            path_or_df = self.read_file([filePath])
+            path_or_df = self.read_file(self.file_path_list)
         else:
-            path_or_df = filePath
+            path_or_df = self.file_path_list
         path = self.process_steps(path_or_df, **mykwargs)
         return(path)
 
@@ -137,7 +138,7 @@ class FileTypeFormat(object):
         logger.info("NO VALIDATION for %s files" % self._fileType)
         return(errors, warnings)
 
-    def validate(self, filePathList, **kwargs):
+    def validate(self, **kwargs):
         '''
         This is the main validation function.
         Every file type calls self._validate, which is different.
@@ -157,14 +158,14 @@ class FileTypeFormat(object):
         errors = ""
 
         try:
-            df = self.read_file(filePathList)
+            df = self.read_file(self.file_path_list)
         except Exception as e:
-            errors = "The file(s) ({filePathList}) cannot be read. Original error: {exception}".format(filePathList=filePathList,
+            errors = "The file(s) ({filePathList}) cannot be read. Original error: {exception}".format(filePathList=self.file_path_list,
                                                                                                        exception=str(e))
             warnings = ""
 
         if not errors:
-            logger.info("VALIDATING %s" % os.path.basename(",".join(filePathList)))
+            logger.info("VALIDATING %s" % os.path.basename(",".join(self.file_path_list)))
             errors, warnings = self._validate(df, **mykwargs)
         
         valid = (errors == '')

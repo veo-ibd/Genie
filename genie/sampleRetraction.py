@@ -17,17 +17,17 @@ class sampleRetraction(FileTypeFormat):
 
     _process_kwargs = ["databaseSynId","fileSynId"]
 
-    def _get_dataframe(self, filePathList):
+    def _get_dataframe(self):
         '''
         This function by defaults assumes the filePathList is length of 1 
         and is a tsv file.  Could change depending on file type.
         '''
-        filePath = filePathList[0]
+        filePath = self.file_path_list[0]
         df = pd.read_csv(filePath,header=None)
         return(df)
 
-    def _validateFilename(self, filePath):
-        assert os.path.basename(filePath[0]) == "%s.csv" % self._fileType
+    def _validateFilename(self):
+        assert os.path.basename(self.file_path_list[0]) == "%s.csv" % self._fileType
 
     def _process(self, deleteSamplesDf, modifiedOn):
         col = 'genieSampleId' if self._fileType == "sampleRetraction" else 'geniePatientId'

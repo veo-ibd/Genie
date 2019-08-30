@@ -19,8 +19,8 @@ class Assayinfo(FileTypeFormat):
 
     _process_kwargs = ["newPath", "databaseSynId"]
 
-    def _validateFilename(self, filepath_list):
-        assert os.path.basename(filepath_list[0]) == "assay_information.yaml"
+    def _validateFilename(self):
+        assert os.path.basename(self.filepath_list[0]) == "assay_information.yaml"
 
     def process_steps(self, assay_info_df, databaseSynId):
         # databaseSynId = kwargs['databaseSynId']
@@ -67,11 +67,11 @@ class Assayinfo(FileTypeFormat):
         df['CENTER'] = self.center
         return(df)
 
-    def _get_dataframe(self, filepath_list):
+    def _get_dataframe(self):
         '''
         Takes in yaml file, returns dataframe
         '''
-        filepath = filepath_list[0]
+        filepath = self.filepath_list[0]
         try:
             with open(filepath, 'r') as yamlfile:
                 # https://github.com/yaml/pyyaml/wiki/PyYAML-yaml.load(input)-Deprecation
