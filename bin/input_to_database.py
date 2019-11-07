@@ -51,6 +51,7 @@ def main(process, project_config=None, center=None, pemfile=None,
          vep_data=None, thread=1, format_registry=config.PROCESS_FILES):
 
     syn = process_functions.synLogin(pemfile, debug=debug)
+    syn.table_query_timeout = 50000
 
     try:
         # Must specify correct paths to vcf2maf, VEP and VEP data
@@ -88,28 +89,30 @@ def main(process, project_config=None, center=None, pemfile=None,
             center_mapping_df = center_mapping_df[center_mapping_df['release']]
             centers = center_mapping_df.center
 
+
         if oncotree_link is None:
-            onco_link = databaseToSynIdMappingDf['Id'][
-                databaseToSynIdMappingDf['Database'] == 'oncotreeLink'].values[0]
-            onco_link_ent = syn.get(onco_link)
-            oncotree_link = onco_link_ent.externalURL
-        # Check if you can connect to oncotree link,
-        # if not then don't run validation / processing
-        process_functions.checkUrl(oncotree_link)
+            try:
+                onco_link = databaseToSynIdMappingDf['Id'][
+                    databaseToSynIdMappingDf['Database'] == 'oncotreeLink'].values[0]
+                onco_link_ent = syn.get(onco_link)
+                oncotree_link = onco_link_ent.externalURL
+                # # Check if you can connect to oncotree link,
+                # # if not then don't run validation / processing
+                # process_functions.checkUrl(oncotree_link)
+            except:
+                oncotree_link = None
 
-        currently_processing = get_processing_status(syn, center_mapping_id)
+        # currently_processing = get_processing_status(syn, center_mapping_id)
         
-        if currently_processing:
-            logger.error(
-                "Processing/validation is currently happening.  "
-                "Please change/add the 'isProcessing' annotation on {} "
-                "to False to enable processing".format(center_mapping_id))
-            sys.exit(1)
-        else:
-            status = set_processing_status(syn, center_mapping_id, status=True)
-        # remove this query timeout and see what happens
-        # syn.table_query_timeout = 50000
-
+        # if currently_processing:
+        #     logger.error(
+        #         "Processing/validation is currently happening.  "
+        #         "Please change/add the 'isProcessing' annotation on {} "
+        #         "to False to enable processing".format(center_mapping_id))
+        #     sys.exit(1)
+        # else:
+        #     status = set_processing_status(syn, center_mapping_id, status=True)
+        
         # Create new maf database, should only happen once if its specified
         if create_new_maf_database:
             databaseToSynIdMappingDf = \
@@ -131,9 +134,9 @@ def main(process, project_config=None, center=None, pemfile=None,
                 thread=thread, format_registry=format_registry)
 
         # To ensure that this is the new entity
-        center_mapping_ent = syn.get(center_mapping_id)
-        center_mapping_ent.isProcessing = "False"
-        center_mapping_ent = syn.store(center_mapping_ent)
+        # center_mapping_ent = syn.get(center_mapping_id)
+        # center_mapping_ent.isProcessing = "False"
+        # center_mapping_ent = syn.store(center_mapping_ent)
 
         error_tracker_synid = process_functions.getDatabaseSynId(
             syn, "errorTracker", databaseToSynIdMappingDf=databaseToSynIdMappingDf)
@@ -146,7 +149,8 @@ def main(process, project_config=None, center=None, pemfile=None,
     except Exception as e:
         raise e
     finally:
-        _ = set_processing_status(syn, center_mapping_id, status=False)
+        pass
+        # _ = set_processing_status(syn, center_mapping_id, status=False)
 
 if __name__ == "__main__":
     '''
