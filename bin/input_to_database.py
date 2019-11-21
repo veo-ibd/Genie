@@ -46,6 +46,7 @@ def set_processing_status(syn, center_mapping_id, status):
 
 def main(process,
          project_id,
+         format_registry,
          center=None,
          pemfile=None,
          delete_old=False,
@@ -129,7 +130,8 @@ def main(process,
             vep_data, databaseToSynIdMappingDf,
             center_mapping_df, reference=reference,
             delete_old=delete_old,
-            oncotree_link=oncotree_link)
+            oncotree_link=oncotree_link,
+            format_registry=format_registry)
 
     # To ensure that this is the new entity
 
@@ -214,8 +216,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    format_registry = config.collect_format_types(args.format_registry_packages)
+
     main(args.process,
          project_id=args.project_id,
+         format_registry=format_registry,
          center=args.center,
          pemfile=args.pemFile,
          delete_old=args.deleteOld,
