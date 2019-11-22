@@ -105,11 +105,11 @@ def test_valid_validate_single_file():
         validator = validate.GenieValidationHelper(syn, project_id=None,
                                                    center=center, filepathlist=filepathlist)
 
-        valid, message, filetype = validator.validate_single_file(oncotree_link=None, nosymbol_check=False)
+        valid, message = validator.validate_single_file(oncotree_link=None, nosymbol_check=False)
 
         assert valid == expected_valid
         assert message == expected_message
-        assert filetype == expected_filetype
+        assert validator.file_type == expected_filetype
 
         mock_determine_filetype.assert_called_once_with()
 
@@ -131,7 +131,7 @@ def test_filetype_validate_single_file():
     expected_error = "----------------ERRORS----------------\nYour filename is incorrect! Please change your filename before you run the validator or specify --filetype if you are running the validator locally"
     validator = validate.GenieValidationHelper(syn, None, center, filepathlist)
 
-    valid, message, filetype = validator.validate_single_file()
+    valid, message = validator.validate_single_file()
     assert message == expected_error
 
 
@@ -150,7 +150,7 @@ def test_wrongfiletype_validate_single_file():
         validator = validate.GenieValidationHelper(syn=syn, project_id=None,
                                                    center=center, 
                                                    filepathlist=filepathlist)
-        valid, message, filetype = validator.validate_single_file()
+        valid, message = validator.validate_single_file()
         
         assert message == expected_error
         mock_determine_filetype.assert_called_once_with()
@@ -290,7 +290,7 @@ def test_perform_validate():
         mock.patch(get_oncotree_call) as patch_get_onco,\
         mock.patch(
             validate_file_call,
-            return_value=(valid, 'foo', 'foo')) as patch_validate,\
+            return_value=(valid, 'foo')) as patch_validate,\
         mock.patch(
             upload_to_syn_call) as patch_syn_upload:
         validate._perform_validate(syn, arg, _config)
