@@ -6,16 +6,20 @@ import synapseclient
 from synapseclient.exceptions import SynapseHTTPError
 
 from genie import validate
+from genie import example_filetype_format
 
 center = "SAGE"
 syn = mock.create_autospec(synapseclient.Synapse)
 
+class TestFileTypeFormat(example_filetype_format.FileTypeFormat):
+    _fileType = "testFileType"
+
+    def _validateFilename(self, filePath):
+        return True
+
 @pytest.fixture(params=[
     # tuple with (input, expectedOutput)
-    (["data_CNA_SAGE.txt"], "cna"),
-    (["data_clinical_supp_SAGE.txt"], "clinical"),
-    (["data_clinical_supp_sample_SAGE.txt",
-      "data_clinical_supp_patient_SAGE.txt"], "clinical")])
+    (["data_CNA_SAGE.txt"], "testFileType")])
 def filename_fileformat_map(request):
     return request.param
 
@@ -26,7 +30,9 @@ def test_perfect_determine_filetype(filename_fileformat_map):
     Parameters are passed in from filename_fileformat_map
     '''
     (filepath_list, fileformat) = filename_fileformat_map
-    validator = validate.GenieValidationHelper(syn, None, center, filepath_list)
+    validator = validate.GenieValidationHelper(syn=syn, project_id=None, 
+                                               center=center, filepathlist=filepath_list,
+                                               format_registry={'testFileType': TestFileTypeFormat})
 
     assert validator.determine_filetype() == fileformat
 
@@ -89,21 +95,22 @@ def test_valid_validate_single_file():
     center = 'SAGE'
     expected_valid = True
     expected_message = "valid message here!"
-    expected_filetype = "clinical"
+    expected_filetype = "fileType"
 
 
     with mock.patch(
             "genie.validate.GenieValidationHelper.determine_filetype",
             return_value=expected_filetype) as mock_determine_filetype,\
         mock.patch(
-            "genie.clinical.clinical.validate",
+            "genie.example_filetype_format.FileTypeFormat.validate",
             return_value=(expected_valid, error_string, warning_string)) as mock_genie_class,\
         mock.patch(
             "genie.validate.collect_errors_and_warnings",
             return_value=expected_message) as mock_determine:
 
         validator = validate.GenieValidationHelper(syn, project_id=None,
-                                                   center=center, filepathlist=filepathlist)
+                                                   center=center, filepathlist=filepathlist,
+                                                   format_registry={"fileType": example_filetype_format.FileTypeFormat})
 
         valid, message, filetype = validator.validate_single_file(oncotree_link=None, nosymbol_check=False)
 
@@ -295,8 +302,8 @@ def test_perform_validate():
             upload_to_syn_call) as patch_syn_upload:
         validate._perform_validate(syn, arg, _config)
         patch_check_parentid.assert_called_once_with(syn, arg.parentid)
-        patch_getdb.assert_called_once_with(syn, project_id=arg.project_id)
-        patch_syn_tablequery.assert_called_once_with('select * from syn123')
+        # patch_getdb.assert_called_once_with(syn, project_id=arg.project_id)
+        patch_syn_tablequery.assert_called_with('select * from syn123')
         patch_check_center.assert_called_once_with(arg.center, ["try", "foo"])
         patch_get_onco.assert_called_once()
         patch_validate.assert_called_once_with(oncotree_link=arg.oncotree_link,
