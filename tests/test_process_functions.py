@@ -265,16 +265,6 @@ def test_norows__delete_rows():
         DATABASE_DF, DATABASE_DF, 'UNIQUE_KEY')
     assert delete_rows.empty
 
-
-@pytest.fixture(params=[
-    # tuple with (input, expectedOutput)
-    (False, False, "syn10967259"),
-    (False, True, "syn12094210"),
-    (True, False, "syn11600968")])
-def database_map(request):
-    return request.param
-
-
 class argparser:
     def asDataFrame(self):
         database_dict = {"Database": ["centerMapping"],
@@ -283,22 +273,25 @@ class argparser:
         return(databasetosynid_mappingdf)
 
 
-def test_get_synid_database_mappingdf(database_map):
+def test_get_synid_database_mappingdf():
     '''
     Test getting database mapping config
-    no flags
-    staging flag
-    test flag
     '''
-    (test, staging, synid) = database_map
+    proj = synapseclient.Project("A test Project")
+    proj.id = 'syn123'
+    proj.annotations.dbMapping = ["syn456"]
+    
+    my_syn = mock.create_autospec(synapseclient.Synapse)
+    my_syn.get.return_value = proj
+
     arg = argparser()
     with mock.patch(
             "genie.process_functions.get_syntabledf",
             return_value=arg.asDataFrame()) as patch_gettabledf:
         df = genie.process_functions.get_synid_database_mappingdf(
-            syn, project_id=None)
+            my_syn, project_id='syn123')
         patch_gettabledf.assert_called_once_with(
-            syn, "SELECT * FROM {}".format(synid))
+            my_syn, "SELECT * FROM {}".format(proj.annotations.dbMapping[0]))
         assert df.equals(arg.asDataFrame())
 
 
